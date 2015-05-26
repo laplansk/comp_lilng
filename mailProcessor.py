@@ -58,12 +58,42 @@ for msg in mailbox.mbox(mboxfile):
 
     i += 1
 
-for key in data_map:
-    print "key: " + str(key)
-    print "val[0]: " + str(data_map[key][0])
-    print "val[1]: " + str(data_map[key][1])
+# for key in data_map:
+#     print "key: " + str(key)
+#     print "val[0]: " + str(data_map[key][0])
+#     print "val[1]: " + str(data_map[key][1])
 
 # dest.close()
+
+# analyze data in memory
+num_messages = 0
+num_yes = 0
+num_no = 0
+recall_yes_numerator = 0
+precision_yes_numerator = 0
+search_words = ["attachment", "attach", "attached"]
+for key in data_map:
+    num_messages += 1
+    if data_map[key][1] == True:
+        num_yes += 1
+    else:
+        num_no += 1
+    word_found = False
+    for keyword in search_words:
+        if keyword in data_map[key][0]:
+            word_found = True
+            break
+    if word_found:
+        recall_yes_numerator += 1
+        if data_map[key][1] == True:
+            precision_yes_numerator += 1
+
+    word_found = False
+
+print "Precision: " + str(float(precision_yes_numerator)/float(num_yes))
+print "Recall: " + str(float(recall_yes_numerator)/float(num_yes))
+
+
 
 
 
