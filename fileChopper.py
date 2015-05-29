@@ -2,10 +2,10 @@ import sys
 import mailbox
 import io
 
-df_name = "../smallFile"
+df_name = "./smallFile"
 df_ext = ".mbox"
 chunk_size = 4096
-output_limit = 500 * 1000 * 1000 # 500 Mbytes
+output_limit = 500 * 1000 * 1000 * 6 # 3.0GB
 bytes_written = 0
 df_num = 0
 sf = open('../allMail.mbox', 'rb')
