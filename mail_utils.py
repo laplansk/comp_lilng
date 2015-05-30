@@ -1,4 +1,6 @@
 import re
+import mailbox
+from threading import Thread
 
 def hasAttachment(msg):
     pattern = re.compile('application/*')
@@ -48,3 +50,50 @@ def getPlainText(msg):
 # this function returns the subject of the msg parameter
 def displaySubject(msg):
     return msg['subject']
+
+# this function loads the data_map parameter with the message texts from the mboxfile parameter and
+# whether or not the email has an attachment
+#  _________________________________
+# |______key______|______value______|
+# |               |                 |
+# |  email body   |   true/false    |
+# |_______________|_________________|
+
+def loadFile(mboxfile):
+    data_map = {}
+    print("loading, please wait")
+    msg_num = 1
+    for msg in mailbox.mbox(mboxfile):
+        if msg_num % 1000 == 0:
+            print("processed " + str(msg_num) + " messages")
+        if not hasBody(msg):
+            continue
+
+        # YES or NO for having attachment
+        has_attachment = False
+        if hasAttachment(msg):
+            has_attachment = True
+
+        # write out the body of the email
+        body = getPlainText(msg)
+        data_map[msg_num] = (body, has_attachment)
+
+        msg_num += 1
+
+    print "load complete"
+    return data_map
+
+def loadGrams(gramfile):
+    print("loading grams, please wait")
+    with open(gramfile) as f:
+        lines = f.readlines()
+
+    # strip newlines
+    for i in range(0, len(lines)):
+        lines[i] = lines[i].rstrip("\n")
+
+    return lines
+
+def printMap(map):
+    for item in map:
+        print str(item) + " : " + str(map[item][1])

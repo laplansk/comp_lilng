@@ -1,18 +1,31 @@
 import sys
-import mailbox
-import io
+import os
 
-df_name = "./smallFile"
+df_name = "smallTestFile"
 df_ext = ".mbox"
 chunk_size = 4096
-output_limit = 500 * 1000 * 1000 * 6 # 3.0GB
+output_limit = 500 * 1000 * 100 # 3.0GB
 bytes_written = 0
 df_num = 0
-sf = open('../allMail.mbox', 'rb')
-df = open(df_name + str(df_num) + df_ext, "wb")
+
+# get input file from command line
+mboxfile = sys.argv[1]
+# check that command line arg is valid filepath
+if not os.path.isfile(mboxfile):
+    print('Invalid source filepath - exiting')
+    sys.exit(1)
+
+# get destination folder from command line
+destFolder = sys.argv[2]
+# check that command line arg is valid filepath
+if not os.path.exists(destFolder):
+    print('Invalid destination folder filepath - exiting')
+    sys.exit(1)
+
+sf = open(mboxfile, 'rb')
+df = open(destFolder + "/" + df_name + str(df_num) + df_ext, "wb")
 
 while True:
-    #print "reading"
     # read in some of the file
     chunk = sf.read(chunk_size)
     if chunk == "":
@@ -24,7 +37,7 @@ while True:
         df.close()
         df_num += 1
         bytes_written = 0
-        df = open(df_name + str(df_num) + df_ext, "wb")
+        df = open(destFolder + "/" + df_name + str(df_num) + df_ext, "wb")
 
 
     # write read data out to output file
