@@ -103,6 +103,30 @@ def loadFile(mboxfile):
     print "load complete"
     return data_map
 
+def loadFiles():
+    rootdir = "./mail_data/phase1_test"
+    data_map = {}
+    print("loading, please wait")
+    msg_num = 0
+    for subdir, dirs, files in os.walk(rootdir):
+        for my_file in files:
+            try:
+                with io.open(os.path.join(subdir, my_file), 'r', encoding='utf-8') as f:
+                    try:
+                        file_class = getClass(f)
+                        plain_text = getText(f)
+                    except UnicodeDecodeError as e:
+                        print e
+                        continue;
+            except OSError:
+                print("File not found")
+            data_map[msg_num] = (plain_text, file_class)
+            msg_num += 1
+    print(str(msg_num))
+
+    print "load complete"
+    return data_map
+
 def loadGrams(gramfile):
     print("loading grams, please wait")
     with open(gramfile) as f:
@@ -136,8 +160,8 @@ def string_to_feature_vector(unigram_list, my_string):
 # def get_bigram_vocab(print_output):
 
 
-def get_unigram_counts(print_output):
-    rootdir = "./mail_data/labeled_messages"
+def get_gram_counts(print_output):
+    rootdir = "./mail_data/clean_labeled_messages_training"
     cnt = collections.Counter()
     for subdir, dirs, files in os.walk(rootdir):
         numFilesToProcess = 500
@@ -154,8 +178,13 @@ def get_unigram_counts(print_output):
                                 first_line = False
                                 continue
                             else:
+                                prev_word = ""
                                 for word in line.split():
+                                    if not prev_word == "": # not first word on line
+                                        bigram = prev_word + word
+                                        cnt[bigram] += 1
                                     cnt[word] += 1
+                                    prev_word = word
                     except UnicodeDecodeError:
                         continue;
             except OSError:
@@ -175,3 +204,23 @@ def clean_unigrams(counter):
         if count <= 1 or "http" in word or "HTTP" in word:
             del counter[word]
     return counter
+
+# examine the first line of the file to see if it is True of False
+def getClass(file):
+    for line in file:
+        if "True" in line:
+            return 0
+        else:
+            return 1
+
+def getText(file):
+    str_accum = ""
+    first_line = True
+    for line in file:
+        # skip the first line
+        if first_line:
+            first_line = False
+            continue;
+        else:
+            str_accum += line
+    return str_accum
