@@ -1,3 +1,4 @@
 mail_data/
 .idea/
 mail_utils.pyc
+*.txt
